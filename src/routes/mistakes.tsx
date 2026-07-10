@@ -23,7 +23,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
-import { getSupabase } from "@/lib/getSupabase()";
+import { getSupabase } from "@/lib/supabase";
 
 export const Route = createFileRoute("/mistakes")({
   head: () => ({
