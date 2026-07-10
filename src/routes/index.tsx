@@ -128,6 +128,18 @@ const initialData: Subject[] = [
   { subject: "地理", score: 80, fullMark: 100 },
 ];
 
+const initialWarnings = [
+  { level: "high" as const, subject: "数学", title: "三角函数公式变形", rate: 60 },
+  { level: "mid" as const, subject: "物理", title: "牛顿第二定律受力分析", rate: 45 },
+  { level: "low" as const, subject: "化学", title: "氧化还原反应配平", rate: 25 },
+];
+
+const weakPoints = [
+  { subject: "数学", topic: "三角函数公式变形", mastery: 45, delta: -3 },
+  { subject: "物理", topic: "牛顿第二定律受力分析", mastery: 52, delta: +2 },
+  { subject: "化学", topic: "氧化还原反应配平", mastery: 68, delta: -1 },
+];
+
 function Dashboard() {
   const [data] = useState<Subject[]>(initialData);
   const [scanOpen, setScanOpen] = useState(false);
