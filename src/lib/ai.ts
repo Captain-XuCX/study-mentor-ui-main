@@ -232,6 +232,9 @@ ${text}
 let aiClientInstance: AiClient | null = null;
 
 function getEnvVar(name: string): string | undefined {
+  if (typeof process !== "undefined" && process.env) {
+    return process.env[name];
+  }
   try {
     return import.meta.env[name];
   } catch {
