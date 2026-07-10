@@ -56,7 +56,27 @@ class OpenAiClient implements AiClient {
   async gradeEssay(text: string, language: "chinese" | "english"): Promise<EssayResult> {
     const isChinese = language === "chinese";
     const prompt = isChinese
-      ? `请作为专业语文老师批改以下作文：\n\n${text}\n\n请返回JSON格式，包含以下字段：\n- score: 分数(0-60)\n- max: 满分60\n- dims: 评分维度数组，每项包含name(内容/表达/发展)、score、max(均为20)\n- highlights: 亮点句子数组\n- errors: 错误修正数组，每项包含text(错误原文)、fix(修正后)、type(错误类型)\n- comment: 教师评语\n\n请严格按JSON格式返回，不要包含其他内容。`
+      ? `请作为资深高中语文老师，按照【高考作文评分标准】批改以下作文：
+
+作文内容：
+${text}
+
+评分标准（总分60分）：
+一、基础等级（40分）
+1. 内容（20分）：题意符合、中心明确、内容充实、思想感情真挚
+2. 表达（20分）：文体鲜明、结构完整、语言流畅、标点正确
+
+二、发展等级（20分）：深刻（见解深刻）、丰富（材料丰富）、有文采（语言有文采）、有创意（见解新颖）
+
+请返回JSON格式，包含以下字段：
+- score: 总分(0-60)
+- max: 60
+- dims: 评分维度数组，每项包含name(内容/表达/发展)、score、max(内容和表达各20，发展20)
+- highlights: 亮点句子数组（如立意深刻、语言优美的句子）
+- errors: 错误修正数组，每项包含text(错误原文)、fix(修正后)、type(错误类型如：错别字/用词不当/语病/标点错误)
+- comment: 教师评语（包含优点、不足及改进建议）
+
+请严格按JSON格式返回，不要包含其他内容。`
       : `Please grade the following essay as a professional English teacher:\n\n${text}\n\nReturn JSON format with these fields:\n- score: score (0-20)\n- max: 20\n- dims: array of scoring dimensions, each with name (Content/Grammar/Coherence), score, max\n- highlights: array of highlight sentences\n- errors: array of corrections, each with text (original), fix (corrected), type (error type)\n- comment: teacher comment\n\nReturn strictly JSON format only, no extra content.`;
 
     const content = await this.request([{ role: "user", content: prompt }]);
@@ -106,7 +126,27 @@ class DeepSeekClient implements AiClient {
   async gradeEssay(text: string, language: "chinese" | "english"): Promise<EssayResult> {
     const isChinese = language === "chinese";
     const prompt = isChinese
-      ? `请作为专业语文老师批改以下作文：\n\n${text}\n\n请返回JSON格式，包含以下字段：\n- score: 分数(0-60)\n- max: 满分60\n- dims: 评分维度数组，每项包含name(内容/表达/发展)、score、max(均为20)\n- highlights: 亮点句子数组\n- errors: 错误修正数组，每项包含text(错误原文)、fix(修正后)、type(错误类型)\n- comment: 教师评语\n\n请严格按JSON格式返回，不要包含其他内容。`
+      ? `请作为资深高中语文老师，按照【高考作文评分标准】批改以下作文：
+
+作文内容：
+${text}
+
+评分标准（总分60分）：
+一、基础等级（40分）
+1. 内容（20分）：题意符合、中心明确、内容充实、思想感情真挚
+2. 表达（20分）：文体鲜明、结构完整、语言流畅、标点正确
+
+二、发展等级（20分）：深刻（见解深刻）、丰富（材料丰富）、有文采（语言有文采）、有创意（见解新颖）
+
+请返回JSON格式，包含以下字段：
+- score: 总分(0-60)
+- max: 60
+- dims: 评分维度数组，每项包含name(内容/表达/发展)、score、max(内容和表达各20，发展20)
+- highlights: 亮点句子数组（如立意深刻、语言优美的句子）
+- errors: 错误修正数组，每项包含text(错误原文)、fix(修正后)、type(错误类型如：错别字/用词不当/语病/标点错误)
+- comment: 教师评语（包含优点、不足及改进建议）
+
+请严格按JSON格式返回，不要包含其他内容。`
       : `Please grade the following essay as a professional English teacher:\n\n${text}\n\nReturn JSON format with these fields:\n- score: score (0-20)\n- max: 20\n- dims: array of scoring dimensions, each with name (Content/Grammar/Coherence), score, max\n- highlights: array of highlight sentences\n- errors: array of corrections, each with text (original), fix (corrected), type (error type)\n- comment: teacher comment\n\nReturn strictly JSON format only, no extra content.`;
 
     const content = await this.request([{ role: "user", content: prompt }]);
@@ -154,7 +194,27 @@ class DoubaoClient implements AiClient {
   async gradeEssay(text: string, language: "chinese" | "english"): Promise<EssayResult> {
     const isChinese = language === "chinese";
     const prompt = isChinese
-      ? `请作为专业语文老师批改以下作文：\n\n${text}\n\n请返回JSON格式，包含以下字段：\n- score: 分数(0-60)\n- max: 满分60\n- dims: 评分维度数组，每项包含name(内容/表达/发展)、score、max(均为20)\n- highlights: 亮点句子数组\n- errors: 错误修正数组，每项包含text(错误原文)、fix(修正后)、type(错误类型)\n- comment: 教师评语\n\n请严格按JSON格式返回，不要包含其他内容。`
+      ? `请作为资深高中语文老师，按照【高考作文评分标准】批改以下作文：
+
+作文内容：
+${text}
+
+评分标准（总分60分）：
+一、基础等级（40分）
+1. 内容（20分）：题意符合、中心明确、内容充实、思想感情真挚
+2. 表达（20分）：文体鲜明、结构完整、语言流畅、标点正确
+
+二、发展等级（20分）：深刻（见解深刻）、丰富（材料丰富）、有文采（语言有文采）、有创意（见解新颖）
+
+请返回JSON格式，包含以下字段：
+- score: 总分(0-60)
+- max: 60
+- dims: 评分维度数组，每项包含name(内容/表达/发展)、score、max(内容和表达各20，发展20)
+- highlights: 亮点句子数组（如立意深刻、语言优美的句子）
+- errors: 错误修正数组，每项包含text(错误原文)、fix(修正后)、type(错误类型如：错别字/用词不当/语病/标点错误)
+- comment: 教师评语（包含优点、不足及改进建议）
+
+请严格按JSON格式返回，不要包含其他内容。`
       : `Please grade the following essay as a professional English teacher:\n\n${text}\n\nReturn JSON format with these fields:\n- score: score (0-20)\n- max: 20\n- dims: array of scoring dimensions, each with name (Content/Grammar/Coherence), score, max\n- highlights: array of highlight sentences\n- errors: array of corrections, each with text (original), fix (corrected), type (error type)\n- comment: teacher comment\n\nReturn strictly JSON format only, no extra content.`;
 
     const content = await this.request([{ role: "user", content: prompt }]);

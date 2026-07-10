@@ -62,10 +62,7 @@ export function AppLayout({ children }: { children: ReactNode }) {
             </div>
           </Link>
           <div className="ml-auto flex items-center gap-2">
-            <button className="hidden items-center gap-1.5 rounded-full border border-border bg-secondary/50 px-3 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground sm:inline-flex">
-              <Sparkles className="h-3.5 w-3.5 text-accent" />
-              升级 Pro
-            </button>
+            
             <button className="grid h-9 w-9 place-items-center rounded-full text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground">
               <Bell className="h-4.5 w-4.5" />
             </button>
