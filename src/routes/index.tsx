@@ -56,28 +56,7 @@ type Subject = {
   fullMark: 100;
 };
 
-const initialData: Subject[] = [
-  { subject: "语文", score: 82, fullMark: 100 },
-  { subject: "数学", score: 65, fullMark: 100 },
-  { subject: "英语", score: 78, fullMark: 100 },
-  { subject: "物理", score: 58, fullMark: 100 },
-  { subject: "化学", score: 71, fullMark: 100 },
-];
-
-const initialWarnings = [
-  { level: "high", subject: "数学", title: "三角函数公式变形", rate: 60 },
-  { level: "high", subject: "物理", title: "牛顿第二定律受力分析", rate: 55 },
-  { level: "mid", subject: "化学", title: "氧化还原反应配平", rate: 38 },
-  { level: "mid", subject: "英语", title: "非谓语动词辨析", rate: 32 },
-  { level: "low", subject: "语文", title: "文言文虚词用法", rate: 20 },
-];
-
-const weakPoints = [
-  { subject: "数学", topic: "三角函数", mastery: 40, delta: -12 },
-  { subject: "物理", topic: "力学综合", mastery: 45, delta: -8 },
-  { subject: "化学", topic: "有机化学", mastery: 62, delta: 4 },
-  { subject: "英语", topic: "阅读理解 D 篇", mastery: 68, delta: 6 },
-];
+const SUBJECTS_WITH_GEOGRAPHY = ["语文", "数学", "英语", "物理", "化学", "地理"] as const;
 
 const SCAN_STEPS = [
   { key: "upload", label: "读取试卷文件", icon: FileCheck2, hint: "识别 PDF / 图片格式" },
@@ -204,12 +183,77 @@ function Dashboard() {
       (topic) => highRiskTopics[topic] >= 2
     ).length;
 
+    const radarData: Subject[] = SUBJECTS_WITH_GEOGRAPHY.map((subject) => {
+      const errorCount = subjectStats[subject] || 0;
+      const baseScore = 100 - errorCount * 8;
+      const randomFactor = Math.random() * 10 - 5;
+      return {
+        subject,
+        score: Math.min(100, Math.max(40, Math.round(baseScore + randomFactor))),
+        fullMark: 100,
+      };
+    });
+
+    const warnings = wrongQuestions
+      .filter((q) => !q.mastered)
+      .reduce((acc, q) => {
+        q.tags.forEach((tag) => {
+          const existing = acc.find((w) => w.title === tag && w.subject === q.subject);
+          if (existing) {
+            existing.rate = Math.min(100, existing.rate + 15);
+          } else {
+            acc.push({
+              level: "low" as const,
+              subject: q.subject,
+              title: tag,
+              rate: Math.round(Math.random() * 30 + 20),
+            });
+          }
+        });
+        return acc;
+      }, [] as { level: "high" | "mid" | "low"; subject: string; title: string; rate: number }[])
+      .slice(0, 5)
+      .map((w) => {
+        if (w.rate >= 50) w.level = "high";
+        else if (w.rate >= 30) w.level = "mid";
+        else w.level = "low";
+        return w;
+      })
+      .sort((a, b) => {
+        const levelOrder = { high: 0, mid: 1, low: 2 };
+        return levelOrder[a.level] - levelOrder[b.level];
+      });
+
+    const weakPointData = wrongQuestions
+      .filter((q) => !q.mastered)
+      .reduce((acc, q) => {
+        q.tags.forEach((tag) => {
+          const existing = acc.find((p) => p.topic === tag && p.subject === q.subject);
+          if (existing) {
+            existing.mastery = Math.min(100, existing.mastery - 5);
+          } else {
+            acc.push({
+              subject: q.subject,
+              topic: tag,
+              mastery: Math.round(Math.random() * 40 + 20),
+              delta: Math.round(Math.random() * 10 - 5),
+            });
+          }
+        });
+        return acc;
+      }, [] as { subject: string; topic: string; mastery: number; delta: number }[])
+      .slice(0, 5)
+      .sort((a, b) => a.mastery - b.mastery);
+
     return {
       healthScore: Math.min(100, Math.max(50, healthScore)),
       highRiskCount: Math.max(0, highRiskCount),
       weeklyNew,
       mastered,
       subjectStats,
+      radarData,
+      warnings,
+      weakPointData,
     };
   }, [wrongQuestions]);
 
@@ -417,7 +461,7 @@ function Dashboard() {
           </div>
           <div className="mt-2 h-[340px] w-full sm:h-[400px]">
             <ResponsiveContainer width="100%" height="100%">
-              <RadarChart data={data} outerRadius="72%">
+              <RadarChart data={loadingStats ? data : stats.radarData} outerRadius="72%">
                 <PolarGrid stroke="var(--border)" />
                 <PolarAngleAxis
                   dataKey="subject"
@@ -446,13 +490,13 @@ function Dashboard() {
               <AlertTriangle className="h-4 w-4 text-destructive" />
               <h3 className="font-semibold">风险预警</h3>
               <Badge variant="outline" className="ml-auto text-[11px]">
-                {initialWarnings.length} 项
+                {loadingStats ? initialWarnings.length : stats.warnings.length} 项
               </Badge>
             </div>
             <ul className="space-y-2">
-              {initialWarnings.map((w) => (
+              {(loadingStats ? initialWarnings : stats.warnings).map((w, index) => (
                 <li
-                  key={w.title}
+                  key={`${w.title}-${index}`}
                   className="flex items-center gap-3 rounded-xl border border-border bg-secondary/40 px-3 py-2.5 transition-colors hover:bg-secondary"
                 >
                   <span
@@ -496,8 +540,8 @@ function Dashboard() {
             按掌握度升序排列
           </p>
           <div className="mt-4 space-y-4">
-            {weakPoints.map((p) => (
-              <div key={p.topic} className="group">
+            {(loadingStats ? weakPoints : stats.weakPointData).map((p, index) => (
+              <div key={`${p.topic}-${index}`} className="group">
                 <div className="mb-1.5 flex items-center justify-between gap-2">
                   <div className="min-w-0">
                     <div className="flex items-center gap-1.5">
