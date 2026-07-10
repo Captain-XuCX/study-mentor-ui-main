@@ -119,6 +119,15 @@ type WrongQuestion = {
   mastered?: boolean;
 };
 
+const initialData: Subject[] = [
+  { subject: "语文", score: 85, fullMark: 100 },
+  { subject: "数学", score: 72, fullMark: 100 },
+  { subject: "英语", score: 88, fullMark: 100 },
+  { subject: "物理", score: 65, fullMark: 100 },
+  { subject: "化学", score: 78, fullMark: 100 },
+  { subject: "地理", score: 80, fullMark: 100 },
+];
+
 function Dashboard() {
   const [data] = useState<Subject[]>(initialData);
   const [scanOpen, setScanOpen] = useState(false);
