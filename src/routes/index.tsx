@@ -38,6 +38,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { getSupabase } from "@/lib/supabase";
+import { getAiClient } from "@/lib/ai";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -106,19 +107,28 @@ const SCAN_RESULTS = [
   },
 ];
 
+type AnalysisResult = {
+  fileName: string;
+  highRisk: { topic: string; rate: number };
+  total: number;
+  points: number;
+  analysis: string;
+  suggestions: string[];
+};
+
 function Dashboard() {
   const [data] = useState<Subject[]>(initialData);
   const [scanOpen, setScanOpen] = useState(false);
   const [scanStage, setScanStage] = useState<"idle" | "uploading" | "loading" | "done">("idle");
   const [scanStep, setScanStep] = useState(0);
-  const [runCount, setRunCount] = useState(0);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [uploadUrl, setUploadUrl] = useState<string | null>(null);
   const [uploadError, setUploadError] = useState<string | null>(null);
+  const [analysisResult, setAnalysisResult] = useState<AnalysisResult | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const avg = Math.round(data.reduce((s, d) => s + d.score, 0) / data.length);
-  const currentResult = SCAN_RESULTS[runCount % SCAN_RESULTS.length];
+  const currentResult = analysisResult || SCAN_RESULTS[0];
 
   useEffect(() => {
     if (scanStage !== "loading") return;
@@ -128,10 +138,22 @@ function Dashboard() {
       timers.push(setTimeout(() => setScanStep(i + 1), (i + 1) * 650));
     });
     timers.push(
-      setTimeout(() => setScanStage("done"), SCAN_STEPS.length * 650 + 200),
+      setTimeout(() => {
+        if (analysisResult) {
+          setScanStage("done");
+        } else {
+          const checkInterval = setInterval(() => {
+            if (analysisResult) {
+              clearInterval(checkInterval);
+              setScanStage("done");
+            }
+          }, 200);
+          timers.push(setTimeout(() => clearInterval(checkInterval), 30000));
+        }
+      }, SCAN_STEPS.length * 650 + 200),
     );
     return () => timers.forEach(clearTimeout);
-  }, [scanStage, runCount]);
+  }, [scanStage, analysisResult]);
 
   const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -169,6 +191,20 @@ function Dashboard() {
       }
 
       setScanStage("loading");
+      setAnalysisResult(null);
+
+      try {
+        const reader = new FileReader();
+        reader.onload = async (event) => {
+          const content = event.target?.result as string;
+          const ai = getAiClient();
+          const result = await ai.analyzePaper(content.substring(0, 5000), file.name);
+          setAnalysisResult(result);
+        };
+        reader.readAsText(file);
+      } catch (err) {
+        console.error("AI analysis failed:", err);
+      }
     } catch (err) {
       console.error("Upload failed:", err);
       setUploadError(err instanceof Error ? err.message : "上传失败");
@@ -181,7 +217,7 @@ function Dashboard() {
   };
 
   const rescan = () => {
-    setRunCount((c) => c + 1);
+    setAnalysisResult(null);
     setScanStage("loading");
   };
 
@@ -192,6 +228,7 @@ function Dashboard() {
       setScanStep(0);
       setUploadUrl(null);
       setUploadError(null);
+      setAnalysisResult(null);
     }, 200);
   };
 
@@ -560,6 +597,33 @@ function Dashboard() {
                       ,建议优先复习。
                     </p>
                   </div>
+                  {analysisResult?.analysis && (
+                    <div className="rounded-xl border border-accent/30 bg-accent/5 p-3">
+                      <div className="flex items-center gap-2">
+                        <Brain className="h-4 w-4 text-accent" />
+                        <span className="text-sm font-semibold">AI 分析</span>
+                      </div>
+                      <p className="mt-1.5 text-sm text-foreground">
+                        {analysisResult.analysis}
+                      </p>
+                    </div>
+                  )}
+                  {analysisResult?.suggestions && analysisResult.suggestions.length > 0 && (
+                    <div className="rounded-xl border border-border bg-secondary/40 p-3">
+                      <div className="flex items-center gap-2 mb-2">
+                        <Lightbulb className="h-4 w-4 text-warning-foreground" />
+                        <span className="text-sm font-semibold">复习建议</span>
+                      </div>
+                      <ul className="space-y-1.5">
+                        {analysisResult.suggestions.map((s, i) => (
+                          <li key={i} className="text-xs text-muted-foreground flex items-start gap-2">
+                            <span className="font-semibold text-accent mt-0.5">•</span>
+                            {s}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
                   <div className="rounded-xl border border-border bg-secondary/40 p-3 text-xs text-muted-foreground">
                     共识别{" "}
                     <span className="font-semibold text-foreground">

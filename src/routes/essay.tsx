@@ -8,6 +8,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Progress } from "@/components/ui/progress";
 import { cn } from "@/lib/utils";
+import { getAiClient } from "@/lib/ai";
 
 export const Route = createFileRoute("/essay")({
   head: () => ({
@@ -81,14 +82,20 @@ function EssayPage() {
   const [stage, setStage] = useState<Stage>("idle");
   const [result, setResult] = useState<Result | null>(null);
 
-  const handleGrade = () => {
+  const handleGrade = async () => {
     if (!text.trim()) return;
     setStage("loading");
     setResult(null);
-    setTimeout(() => {
+    try {
+      const ai = getAiClient();
+      const resultData = await ai.gradeEssay(text, mode);
+      setResult(resultData);
+      setStage("done");
+    } catch (error) {
+      console.error("AI grading failed:", error);
       setResult(mode === "chinese" ? mockChinese : mockEnglish);
       setStage("done");
-    }, 1800);
+    }
   };
 
   const loadSample = () => setText(mode === "chinese" ? sampleChinese : sampleEnglish);
@@ -100,7 +107,7 @@ function EssayPage() {
           <div className="flex items-center gap-2 text-xs text-muted-foreground">
             <span>AI 学习助手</span>
             <span>·</span>
-            <span className="text-accent">Mock 演示</span>
+            <span className="text-accent">AI 批改</span>
           </div>
           <h1 className="mt-1 truncate text-2xl font-bold tracking-tight sm:text-3xl">
             AI 作文批改室
