@@ -154,7 +154,9 @@ function Dashboard() {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    fetchWrongQuestions();
+    if (typeof window !== "undefined") {
+      fetchWrongQuestions();
+    }
   }, []);
 
   const fetchWrongQuestions = async () => {

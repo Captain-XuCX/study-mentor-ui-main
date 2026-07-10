@@ -231,22 +231,29 @@ ${text}
 
 let aiClientInstance: AiClient | null = null;
 
+function getEnvVar(name: string): string | undefined {
+  try {
+    return import.meta.env[name];
+  } catch {
+    return undefined;
+  }
+}
+
 export function isAiConfigured(): boolean {
-  return !!import.meta.env.VITE_AI_API_KEY;
+  return !!getEnvVar("VITE_AI_API_KEY");
 }
 
 export function getAiProvider(): string {
-  return import.meta.env.VITE_AI_PROVIDER || "openai";
+  return getEnvVar("VITE_AI_PROVIDER") || "openai";
 }
 
 export function getAiClient(): AiClient {
   if (aiClientInstance) return aiClientInstance;
 
-  const provider = import.meta.env.VITE_AI_PROVIDER || "openai";
-  const apiKey = import.meta.env.VITE_AI_API_KEY;
+  const provider = getEnvVar("VITE_AI_PROVIDER") || "openai";
+  const apiKey = getEnvVar("VITE_AI_API_KEY");
 
   if (!apiKey) {
-    console.warn("AI API key not found, using mock responses");
     return createMockClient();
   }
 
