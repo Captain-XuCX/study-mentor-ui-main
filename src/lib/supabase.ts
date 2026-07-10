@@ -3,9 +3,6 @@ import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 let supabaseInstance: SupabaseClient | null = null;
 
 function getEnv(key: string): string | undefined {
-  if (typeof process !== "undefined" && process.env) {
-    return process.env[key];
-  }
   try {
     return import.meta.env[key];
   } catch {
