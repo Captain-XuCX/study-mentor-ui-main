@@ -171,6 +171,14 @@ class DoubaoClient implements AiClient {
 
 let aiClientInstance: AiClient | null = null;
 
+export function isAiConfigured(): boolean {
+  return !!import.meta.env.VITE_AI_API_KEY;
+}
+
+export function getAiProvider(): string {
+  return import.meta.env.VITE_AI_PROVIDER || "openai";
+}
+
 export function getAiClient(): AiClient {
   if (aiClientInstance) return aiClientInstance;
 

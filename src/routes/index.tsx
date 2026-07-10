@@ -38,7 +38,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { getSupabase } from "@/lib/supabase";
-import { getAiClient } from "@/lib/ai";
+import { getAiClient, isAiConfigured, getAiProvider } from "@/lib/ai";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -441,6 +441,12 @@ function Dashboard() {
               {scanStage === "loading" && "正在识别试卷内容并分析知识点..."}
               {scanStage === "done" && "扫描完成,已发现你的薄弱点。"}
             </DialogDescription>
+            <div className="mt-2 flex items-center gap-2 text-xs">
+              <span className="text-muted-foreground">当前模式:</span>
+              <span className={isAiConfigured() ? "text-green-500 font-medium" : "text-amber-500 font-medium"}>
+                {isAiConfigured() ? `${getAiProvider().toUpperCase()} AI` : "演示模式"}
+              </span>
+            </div>
           </DialogHeader>
 
           {scanStage === "uploading" && (

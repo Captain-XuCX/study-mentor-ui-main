@@ -8,7 +8,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Progress } from "@/components/ui/progress";
 import { cn } from "@/lib/utils";
-import { getAiClient } from "@/lib/ai";
+import { getAiClient, isAiConfigured, getAiProvider } from "@/lib/ai";
 
 export const Route = createFileRoute("/essay")({
   head: () => ({
@@ -107,7 +107,9 @@ function EssayPage() {
           <div className="flex items-center gap-2 text-xs text-muted-foreground">
             <span>AI 学习助手</span>
             <span>·</span>
-            <span className="text-accent">AI 批改</span>
+            <span className={isAiConfigured() ? "text-green-500" : "text-amber-500"}>
+              {isAiConfigured() ? `${getAiProvider().toUpperCase()} AI` : "演示模式"}
+            </span>
           </div>
           <h1 className="mt-1 truncate text-2xl font-bold tracking-tight sm:text-3xl">
             AI 作文批改室
