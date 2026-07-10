@@ -6,6 +6,11 @@ function getEnv(key: string): string | undefined {
   try {
     return import.meta.env[key];
   } catch {
+    // empty
+  }
+  try {
+    return (globalThis as any).process?.env?.[key];
+  } catch {
     return undefined;
   }
 }

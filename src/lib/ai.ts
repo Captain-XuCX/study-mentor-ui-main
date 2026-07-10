@@ -235,6 +235,11 @@ function getEnvVar(name: string): string | undefined {
   try {
     return import.meta.env[name];
   } catch {
+    // empty
+  }
+  try {
+    return (globalThis as any).process?.env?.[name];
+  } catch {
     return undefined;
   }
 }
